@@ -117,4 +117,4 @@ if __name__ == '__main__':
     # Create index.html template file from the frontend code
     # In a real application, you would have separate frontend and backend repos
     # This is just for convenience in this example
-    app.run(debug=True)
+    app.run(host = '0.0.0.0', port = 8080)
