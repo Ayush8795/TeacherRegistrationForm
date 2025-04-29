@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Registration Form</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+
+        .form-header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .form-content {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        input[type="date"] {
+            color: #666;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="radio"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            background-color: #2ecc71;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-header">
+            <h2>Teacher Registration</h2>
+        </div>
+        <div class="form-content">
+            <div class="success-message" id="successMessage">
+                Registration successful!
+            </div>
+            <form id="teacherForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required>
+                    <div class="error" id="nameError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                    <div class="error" id="emailError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required>
+                    <div class="error" id="phoneError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="male" name="gender" value="male" required>
+                            <label for="male">Male</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="female" name="gender" value="female">
+                            <label for="female">Female</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="other" name="gender" value="other">
+                            <label for="other">Other</label>
+                        </div>
+                    </div>
+                    <div class="error" id="genderError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" id="dob" name="dob" required>
+                    <div class="error" id="dobError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="school">School Name</label>
+                    <input type="text" id="school" name="school" required>
+                    <div class="error" id="schoolError"></div>
+                </div>
+
+                <button type="submit" id="submitBtn">Register</button>
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('teacherForm');
+            const loading = document.getElementById('loading');
+            const successMessage = document.getElementById('successMessage');
+
+            // Validate email format
+            function isValidEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+
+            // Validate phone number format (accepts multiple formats)
+            function isValidPhone(phone) {
+                const re = /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
+                return re.test(phone);
+            }
+
+            // Clear all error messages
+            function clearErrors() {
+                const errorElements = document.querySelectorAll('.error');
+                errorElements.forEach(element => {
+                    element.textContent = '';
+                });
+            }
+
+            // Handle form submission
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                clearErrors();
+
+                // Get form values
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const dob = document.getElementById('dob').value;
+                const school = document.getElementById('school').value.trim();
+                
+                // Get selected gender
+                let gender = '';
+                const genderOptions = document.querySelectorAll('input[name="gender"]');
+                genderOptions.forEach(option => {
+                    if (option.checked) {
+                        gender = option.value;
+                    }
+                });
+
+                // Validate fields
+                let isValid = true;
+
+                if (!name) {
+                    document.getElementById('nameError').textContent = 'Name is required';
+                    isValid = false;
+                }
+
+                if (!email) {
+                    document.getElementById('emailError').textContent = 'Email is required';
+                    isValid = false;
+                } else if (!isValidEmail(email)) {
+                    document.getElementById('emailError').textContent = 'Please enter a valid email address';
+                    isValid = false;
+                }
+
+                if (!phone) {
+                    document.getElementById('phoneError').textContent = 'Phone number is required';
+                    isValid = false;
+                } else if (!isValidPhone(phone)) {
+                    document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
+                    isValid = false;
+                }
+
+                if (!gender) {
+                    document.getElementById('genderError').textContent = 'Please select gender';
+                    isValid = false;
+                }
+
+                if (!dob) {
+                    document.getElementById('dobError').textContent = 'Date of birth is required';
+                    isValid = false;
+                }
+
+                if (!school) {
+                    document.getElementById('schoolError').textContent = 'School name is required';
+                    isValid = false;
+                }
+
+                // If form is valid, submit data
+                if (isValid) {
+                    loading.style.display = 'block';
+                    
+                    // Prepare data for submission
+                    const formData = {
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        gender: gender,
+                        dob: dob,
+                        school: school
+                    };
+
+                    // Submit data to backend API
+                    fetch('/api/teachers', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    })
+                    .then(response => {
+                        loading.style.display = 'none';
+                        
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Show success message
+                        successMessage.style.display = 'block';
+                        // Reset form
+                        form.reset();
+                        
+                        // Hide success message after 3 seconds
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 3000);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again later.');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
